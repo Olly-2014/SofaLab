@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>SofaLab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#FFFFFF;
+  --surface:#FFFFFF;
+  --surface2:#F7F9FC;
+  --sage:#0055FF;
+  --sage-dim:#0033CC;
+  --brass:#0055FF;
+  --green:#00C87A;
+  --ivory:#071A40;
+  --muted:#6080B0;
+  --danger:#FF3B55;
+  --radius:20px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --shadow:0 2px 16px rgba(0,85,255,.07);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ivory);font-family:'Plus Jakarta Sans',sans-serif;overscroll-behavior-y:none;min-height:100dvh;}
+body{padding-top:var(--safe-top);}
+body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:calc(var(--safe-bottom) + 2px);background:var(--bg);z-index:5;pointer-events:none;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.display{font-family:'Space Grotesk',sans-serif;}
+
+#app{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(96px + var(--safe-bottom));}
+
+/* header */
+.topbar{padding:22px 20px 10px;display:flex;justify-content:space-between;align-items:baseline;}
+.topbar h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;margin:0;letter-spacing:-0.01em;}
+.topbar .brand-dot{color:var(--sage);}
+.topbar .sub{color:var(--muted);font-size:12px;margin-top:2px;}
+
+.screen{padding:6px 20px 20px; animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.screen.hidden{display:none;}
+
+/* cards */
+.card{background:var(--surface);border-radius:var(--radius);padding:18px;margin-bottom:14px;border:1.5px solid #D8E8FF;box-shadow:var(--shadow);}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 12px;font-weight:700;}
+
+/* dashboard stats */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.stat{background:var(--surface);border-radius:var(--radius);padding:16px;border:1.5px solid #D8E8FF;box-shadow:var(--shadow);}
+.stat .num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--ivory);letter-spacing:-0.5px;}
+.stat .lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.stat.accent{background:var(--surface);border-color:#D8E8FF;}
+
+/* list rows */
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EAF1FF;}
+.row:last-child{border-bottom:none;}
+.row .rtitle{font-size:15px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+.row .rsub{font-size:12px;color:var(--muted);margin-top:2px;}
+.row .rval{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ivory);}
+.badge{font-size:10px;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.badge.bozza{background:var(--surface2);color:var(--muted);}
+.badge.inviato{background:rgba(0,85,255,0.1);color:var(--sage);}
+.badge.accettato{background:rgba(0,200,122,0.12);color:#007a4a;}
+.badge.rifiutato{background:rgba(255,59,85,0.1);color:var(--danger);}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:16px;border:none;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;cursor:pointer;width:100%;}
+.btn-primary{background:var(--sage);color:#fff;box-shadow:0 4px 16px rgba(0,85,255,.3);}
+.btn-primary:active{background:var(--sage-dim);}
+.btn-ghost{background:var(--surface2);color:var(--ivory);border:1.5px solid #D8E8FF;}
+.btn-danger-ghost{background:rgba(255,59,85,0.08);color:var(--danger);border:1.5px solid rgba(255,59,85,.2);}
+.fab{position:fixed;bottom:calc(96px + var(--safe-bottom));right:calc(50% - 260px + 20px);width:56px;height:56px;border-radius:50%;background:var(--sage);color:#fff;border:none;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,85,255,.35);z-index:40;}
+@media (max-width:559px){.fab{right:20px;}}
+
+/* inputs */
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;}
+label:first-child{margin-top:0;}
+input,select,textarea{width:100%;background:var(--surface2);border:1.5px solid #D8E8FF;color:var(--ivory);padding:13px 14px;border-radius:16px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sage);background:#fff;}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236080B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+
+/* fabric swatches */
+.swatch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;}
+.swatch{aspect-ratio:1;border-radius:12px;border:2px solid transparent;position:relative;cursor:pointer;display:flex;align-items:flex-end;overflow:hidden;}
+.swatch.selected{border-color:var(--sage);}
+.swatch-tag{font-size:9px;text-align:center;color:var(--muted);margin-top:5px;}
+
+/* sofa preview */
+.preview-box{background:var(--surface2);border-radius:var(--radius);padding:20px 10px 10px;display:flex;flex-direction:column;align-items:center;margin-bottom:14px;border:1.5px solid #D8E8FF;}
+.preview-price{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;margin-top:10px;}
+.preview-price .cur{font-size:16px;color:var(--muted);}
+
+/* production stages */
+.stage-track{display:flex;justify-content:space-between;margin:10px 0 4px;position:relative;}
+.stage-track::before{content:'';position:absolute;top:11px;left:16px;right:16px;height:2px;background:#D8E8FF;}
+.stage-dot{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:2px solid #D8E8FF;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative;z-index:1;font-weight:700;}
+.stage-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.stage-dot.current{border-color:var(--sage);background:var(--sage);color:#fff;}
+.stage-labels{display:flex;justify-content:space-between;margin-top:6px;}
+.stage-labels span{font-size:8px;color:var(--muted);width:24px;text-align:center;font-weight:600;}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .display{font-size:18px;color:var(--ivory);display:block;margin-bottom:6px;font-weight:700;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(7,26,64,.45);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.modal-sheet{background:var(--surface);width:100%;max-width:520px;border-radius:28px 28px 0 0;padding:20px 20px calc(24px + var(--safe-bottom));max-height:88vh;overflow-y:auto;animation:slideUp .3s ease;box-shadow:0 -4px 32px rgba(0,85,255,.1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:36px;height:4px;background:#D8E8FF;border-radius:4px;margin:0 auto 16px;}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin:0 0 4px;color:var(--ivory);}
+.close-x{position:absolute;top:18px;right:20px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+.field-row{display:flex;gap:10px;}
+.field-row > div{flex:1;}
+.toast{position:fixed;bottom:calc(110px + var(--safe-bottom));left:50%;transform:translateX(-50%);background:var(--ivory);color:#fff;padding:12px 20px;border-radius:14px;font-weight:700;font-size:14px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* bottom nav - iOS 26 liquid glass (floating pill, versione originale) */
+.bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:0 14px calc(14px + var(--safe-bottom));z-index:50;pointer-events:none;}
+.nav-glass{pointer-events:auto;display:flex;gap:0;background:rgba(19,29,46,0.88);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid rgba(237,230,220,0.1);border-radius:24px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);max-width:100%;}
+.navbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 10px;border-radius:18px;background:transparent;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:9px;font-weight:600;transition:all .25s ease;flex:1;white-space:nowrap;}
+.navbtn.active{background:rgba(62,146,229,0.22);color:var(--sage);}
+.navbtn svg{width:19px;height:19px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div>
+      <h1>Sofa<span class="brand-dot">Lab</span></h1>
+      <div class="sub" id="topbarSub">Gestione preventivi divani</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="screen-dashboard">
+    <div class="stat-grid">
+      <div class="stat accent">
+        <div class="num mono" id="statTotClienti">0</div>
+        <div class="lbl">Clienti</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="statTotPreventivi">0</div>
+        <div class="lbl">Preventivi attivi</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="statValoreAccettati">€0</div>
+        <div class="lbl">Valore accettato</div>
+      </div>
+      <div class="stat">
+        <div class="num mono" id="statInProduzione">0</div>
+        <div class="lbl">In produzione</div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="card-title">Ultimi preventivi</p>
+      <div id="dashRecentQuotes"></div>
+    </div>
+  </div>
+
+  <!-- CLIENTI -->
+  <div class="screen hidden" id="screen-clienti">
+    <div class="card">
+      <p class="card-title">Anagrafica clienti</p>
+      <div id="listaClienti"></div>
+    </div>
+  </div>
+
+  <!-- PREVENTIVI -->
+  <div class="screen hidden" id="screen-preventivi">
+    <div class="card">
+      <p class="card-title">Tutti i preventivi</p>
+      <div id="listaPreventivi"></div>
+    </div>
+  </div>
+
+  <!-- TESSUTI -->
+  <div class="screen hidden" id="screen-tessuti">
+    <div class="card">
+      <p class="card-title">Catalogo tessuti</p>
+      <div class="swatch-grid" id="catalogoTessuti"></div>
+    </div>
+  </div>
+
+  <!-- PRODUZIONE -->
+  <div class="screen hidden" id="screen-produzione">
+    <div class="card" id="produzioneList">
+      <p class="card-title">Ordini in produzione</p>
+      <div id="listaProduzione"></div>
+    </div>
+  </div>
+
+</div>
+
+<button class="fab" id="fabAdd">+</button>
+
+<div class="bottomnav">
+  <div class="nav-glass">
+    <button class="navbtn active" data-screen="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+      Home
+    </button>
+    <button class="navbtn" data-screen="clienti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Clienti
+    </button>
+    <button class="navbtn" data-screen="preventivi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M9 12h6M9 16h6"/></svg>
+      Preventivi
+    </button>
+    <button class="navbtn" data-screen="tessuti">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+      Tessuti
+    </button>
+    <button class="navbtn" data-screen="produzione">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="3"/></svg>
+      Produzione
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODALS root -->
+<div id="modalRoot"></div>
+
+<script>
+/* ---------- DATA LAYER ---------- */
+const DB = {
+  load(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } },
+  save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+};
+
+const FABRIC_CATALOG_DEFAULT = [
+  {id:'f1', nome:'Lino Salvia', colore:'#8A9A7E', prezzoMq:38, texture:'linen'},
+  {id:'f2', nome:'Velluto Cognac', colore:'#A6663B', prezzoMq:62, texture:'velvet'},
+  {id:'f3', nome:'Bouclé Avorio', colore:'#E4DAC8', prezzoMq:55, texture:'boucle'},
+  {id:'f4', nome:'Ecopelle Testa di Moro', colore:'#4A342A', prezzoMq:70, texture:'leather'},
+  {id:'f5', nome:'Chenille Blu Petrolio', colore:'#3D5A5B', prezzoMq:48, texture:'chenille'},
+  {id:'f6', nome:'Cotone Terracotta', colore:'#B4694A', prezzoMq:34, texture:'linen'},
+  {id:'f7', nome:'Velluto Verde Bosco', colore:'#3F5443', prezzoMq:64, texture:'velvet'},
+  {id:'f8', nome:'Lino Grigio Perla', colore:'#9C9690', prezzoMq:36, texture:'linen'},
+];
+
+const MODELLI = {
+  '2posti':   {label:'2 posti', mqBase:4.2, prezzoBase:480, seats:2},
+  '3posti':   {label:'3 posti', mqBase:5.6, prezzoBase:620, seats:3},
+  'angolare': {label:'Angolare', mqBase:8.4, prezzoBase:980, seats:5},
+  'penisola': {label:'Penisola', mqBase:9.6, prezzoBase:1120, seats:5},
+  'letto':    {label:'Divano letto', mqBase:6.8, prezzoBase:890, seats:3},
+};
+
+let state = {
+  clienti: DB.load('sofalab_clienti', []),
+  preventivi: DB.load('sofalab_preventivi', []),
+  tessuti: DB.load('sofalab_tessuti', FABRIC_CATALOG_DEFAULT),
+  currentScreen: 'dashboard',
+};
+
+function persist(){
+  DB.save('sofalab_clienti', state.clienti);
+  DB.save('sofalab_preventivi', state.preventivi);
+  DB.save('sofalab_tessuti', state.tessuti);
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function euro(n){ return '€' + Number(n).toLocaleString('it-IT', {maximumFractionDigits:0}); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+const PROD_STAGES = ['Taglio','Cucitura','Imbottitura','Assemblaggio','Consegna'];
+
+/* ---------- NAV ---------- */
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchScreen(btn.dataset.screen));
+});
+function switchScreen(name){
+  state.currentScreen = name;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('screen-'+name).classList.remove('hidden');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.screen===name));
+  const subs = {
+    dashboard:'Gestione preventivi divani',
+    clienti:'Anagrafica clienti',
+    preventivi:'Preventivi e stati',
+    tessuti:'Catalogo tessuti e finiture',
+    produzione:'Tracciamento ordini'
+  };
+  document.getElementById('topbarSub').textContent = subs[name];
+  render();
+}
+
+document.getElementById('fabAdd').addEventListener('click', ()=>{
+  if(state.currentScreen==='clienti') openClienteModal();
+  else openPreventivoModal();
+});
+
+/* ---------- RENDER ---------- */
+function render(){
+  renderDashboard();
+  renderClienti();
+  renderPreventivi();
+  renderTessuti();
+  renderProduzione();
+}
+
+function renderDashboard(){
+  document.getElementById('statTotClienti').textContent = state.clienti.length;
+  const attivi = state.preventivi.filter(p=>p.stato!=='rifiutato');
+  document.getElementById('statTotPreventivi').textContent = attivi.length;
+  const valoreAccettati = state.preventivi.filter(p=>p.stato==='accettato').reduce((s,p)=>s+p.prezzo,0);
+  document.getElementById('statValoreAccettati').textContent = euro(valoreAccettati);
+  const inProd = state.preventivi.filter(p=>p.stato==='accettato' && (p.stageIndex ?? 0) < PROD_STAGES.length-1).length;
+  document.getElementById('statInProduzione').textContent = inProd;
+
+  const recent = [...state.preventivi].sort((a,b)=>b.creato-a.creato).slice(0,5);
+  const el = document.getElementById('dashRecentQuotes');
+  if(recent.length===0){
+    el.innerHTML = '<div class="empty"><span class="display">Nessun preventivo</span>Tocca + per crearne uno</div>';
+    return;
+  }
+  el.innerHTML = recent.map(p=>{
+    const cliente = state.clienti.find(c=>c.id===p.clienteId);
+    return `<div class="row" onclick="viewPreventivo('${p.id}')">
+      <div><div class="rtitle">${cliente?cliente.nome:'—'}</div><div class="rsub">${MODELLI[p.modello].label} · ${p.tessutoNome}</div></div>
+      <div style="text-align:right"><div class="rval">${euro(p.prezzo)}</div><span class="badge ${p.stato}">${p.stato}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderClienti(){
+  const el = document.getElementById('listaClienti');
+  if(state.clienti.length===0){
+    el.innerHTML = '<div class="empty"><span class="display">Nessun cliente</span>Tocca + per aggiungerne uno</div>';
+    return;
+  }
+  el.innerHTML = state.clienti.map(c=>{
+    const nPrev = state.preventivi.filter(p=>p.clienteId===c.id).length;
+    return `<div class="row" onclick="openClienteModal('${c.id}')">
+      <div><div class="rtitle">${c.nome}</div><div class="rsub">${c.telefono||'—'}</div></div>
+      <div class="rval">${nPrev} prev.</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPreventivi(){
+  const el = document.getElementById('listaPreventivi');
+  if(state.preventivi.length===0){
+    el.innerHTML = '<div class="empty"><span class="display">Nessun preventivo</span>Tocca + per crearne uno</div>';
+    return;
+  }
+  const sorted = [...state.preventivi].sort((a,b)=>b.creato-a.creato);
+  el.innerHTML = sorted.map(p=>{
+    const cliente = state.clienti.find(c=>c.id===p.clienteId);
+    return `<div class="row" onclick="viewPreventivo('${p.id}')">
+      <div><div class="rtitle">${cliente?cliente.nome:'—'}</div><div class="rsub">${MODELLI[p.modello].label} · ${p.tessutoNome} · ${p.larghezza}cm</div></div>
+      <div style="text-align:right"><div class="rval">${euro(p.prezzo)}</div><span class="badge ${p.stato}">${p.stato}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTessuti(){
+  const el = document.getElementById('catalogoTessuti');
+  el.innerHTML = state.tessuti.map(f=>`
+    <div>
+      <div class="swatch" style="background:${swatchGradient(f)}"></div>
+      <div class="swatch-tag">${f.nome}<br>${f.prezzoMq}€/mq</div>
+    </div>
+  `).join('');
+}
+
+function swatchGradient(f){
+  const c = f.colore;
+  if(f.texture==='velvet') return `radial-gradient(circle at 30% 20%, ${lighten(c,18)}, ${c} 60%, ${darken(c,12)})`;
+  if(f.texture==='leather') return `linear-gradient(135deg, ${lighten(c,8)}, ${c} 50%, ${darken(c,10)})`;
+  if(f.texture==='boucle') return `radial-gradient(circle, ${lighten(c,10)} 1px, ${c} 1px) 0 0/6px 6px`;
+  if(f.texture==='chenille') return `repeating-linear-gradient(45deg, ${c}, ${c} 4px, ${darken(c,6)} 4px, ${darken(c,6)} 8px)`;
+  return `linear-gradient(160deg, ${lighten(c,6)}, ${c})`;
+}
+function hexToRgb(hex){ const n = parseInt(hex.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
+function lighten(hex,amt){ const [r,g,b]=hexToRgb(hex); return rgbToHex(r+amt*2,g+amt*2,b+amt*2); }
+function darken(hex,amt){ const [r,g,b]=hexToRgb(hex); return rgbToHex(r-amt*2,g-amt*2,b-amt*2); }
+
+function renderProduzione(){
+  const inProd = state.preventivi.filter(p=>p.stato==='accettato');
+  const el = document.getElementById('listaProduzione');
+  if(inProd.length===0){
+    el.innerHTML = '<div class="empty"><span class="display">Nessun ordine in produzione</span>Accetta un preventivo per avviarne uno</div>';
+    return;
+  }
+  el.innerHTML = inProd.map(p=>{
+    const cliente = state.clienti.find(c=>c.id===p.clienteId);
+    const idx = p.stageIndex ?? 0;
+    const dots = PROD_STAGES.map((s,i)=>{
+      const cls = i<idx ? 'done' : (i===idx ? 'current' : '');
+      return `<div class="stage-dot ${cls}" onclick="setStage('${p.id}',${i})">${i<idx?'✓':i+1}</div>`;
+    }).join('');
+    const labels = PROD_STAGES.map(s=>`<span>${s}</span>`).join('');
+    return `<div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #EAF1FF">
+      <div class="row" style="border:none;padding:0 0 8px">
+        <div><div class="rtitle">${cliente?cliente.nome:'—'}</div><div class="rsub">${MODELLI[p.modello].label} · ${p.tessutoNome}</div></div>
+        <div class="rval">${euro(p.prezzo)}</div>
+      </div>
+      <div class="stage-track">${dots}</div>
+      <div class="stage-labels">${labels}</div>
+    </div>`;
+  }).join('');
+}
+
+function setStage(prevId, idx){
+  const p = state.preventivi.find(x=>x.id===prevId);
+  if(!p) return;
+  p.stageIndex = idx;
+  persist(); render();
+  showToast('Fase aggiornata: ' + PROD_STAGES[idx]);
+}
+
+/* ---------- MODALS ---------- */
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+
+function openClienteModal(id){
+  const editing = id ? state.clienti.find(c=>c.id===id) : null;
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <div class="modal-handle"></div>
+        <h2 class="modal-title">${editing?'Modifica cliente':'Nuovo cliente'}</h2>
+        <label>Nome e cognome</label>
+        <input id="inpNome" value="${editing?editing.nome:''}" placeholder="Es. Maria Rossi">
+        <label>Telefono</label>
+        <input id="inpTel" value="${editing?editing.telefono||'':''}" placeholder="333 1234567" type="tel">
+        <label>Email</label>
+        <input id="inpEmail" value="${editing?editing.email||'':''}" placeholder="mail@esempio.it" type="email">
+        <label>Indirizzo</label>
+        <input id="inpIndirizzo" value="${editing?editing.indirizzo||'':''}" placeholder="Via, città">
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary" onclick="saveCliente(${editing?`'${editing.id}'`:'null'})">Salva cliente</button>
+          ${editing?`<button class="btn btn-danger-ghost" onclick="deleteCliente('${editing.id}')">Elimina cliente</button>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveCliente(id){
+  const nome = document.getElementById('inpNome').value.trim();
+  if(!nome){ showToast('Inserisci il nome'); return; }
+  const data = {
+    nome,
+    telefono: document.getElementById('inpTel').value.trim(),
+    email: document.getElementById('inpEmail').value.trim(),
+    indirizzo: document.getElementById('inpIndirizzo').value.trim(),
+  };
+  if(id){
+    Object.assign(state.clienti.find(c=>c.id===id), data);
+  }else{
+    state.clienti.push({id:uid(), ...data});
+  }
+  persist(); closeModal(); render();
+  showToast('Cliente salvato');
+}
+
+function deleteCliente(id){
+  state.clienti = state.clienti.filter(c=>c.id!==id);
+  persist(); closeModal(); render();
+  showToast('Cliente eliminato');
+}
+
+let previewState = { modello:'3posti', tessutoId: FABRIC_CATALOG_DEFAULT[0].id, larghezza: 220 };
+
+function openPreventivoModal(){
+  if(state.clienti.length===0){
+    showToast('Aggiungi prima un cliente'); switchScreen('clienti'); return;
+  }
+  previewState = { modello:'3posti', tessutoId: state.tessuti[0].id, larghezza: 220 };
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <div class="modal-handle"></div>
+        <h2 class="modal-title">Nuovo preventivo</h2>
+
+        <div class="preview-box">
+          <svg id="sofaSvg" width="220" height="110" viewBox="0 0 220 110"></svg>
+          <div class="preview-price mono"><span class="cur">€</span><span id="previewPrezzo">0</span></div>
+        </div>
+
+        <label>Cliente</label>
+        <select id="selCliente">
+          ${state.clienti.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('')}
+        </select>
+
+        <label>Modello divano</label>
+        <select id="selModello">
+          ${Object.entries(MODELLI).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
+        </select>
+
+        <div class="field-row">
+          <div>
+            <label>Larghezza (cm)</label>
+            <input id="inpLarghezza" type="number" value="220" min="140" max="400" step="10">
+          </div>
+          <div>
+            <label>Tessuto</label>
+            <select id="selTessuto">
+              ${state.tessuti.map(f=>`<option value="${f.id}">${f.nome}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <label>Note</label>
+        <textarea id="inpNote" rows="2" placeholder="Es. gambe in rovere, cuscini extra..."></textarea>
+
+        <button class="btn btn-primary" style="margin-top:20px" onclick="salvaPreventivo()">Crea preventivo</button>
+      </div>
+    </div>`;
+
+  ['selModello','inpLarghezza','selTessuto'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+  updatePreview();
+}
+
+function updatePreview(){
+  previewState.modello = document.getElementById('selModello').value;
+  previewState.larghezza = Number(document.getElementById('inpLarghezza').value) || 220;
+  previewState.tessutoId = document.getElementById('selTessuto').value;
+  drawSofa();
+  const prezzo = calcPrezzo(previewState);
+  document.getElementById('previewPrezzo').textContent = prezzo.toLocaleString('it-IT');
+}
+
+function calcPrezzo(p){
+  const m = MODELLI[p.modello];
+  const f = state.tessuti.find(t=>t.id===p.tessutoId);
+  const scala = p.larghezza / 220;
+  const costoStruttura = m.prezzoBase * scala;
+  const costoTessuto = m.mqBase * scala * f.prezzoMq;
+  return Math.round((costoStruttura + costoTessuto) / 10) * 10;
+}
+
+function drawSofa(){
+  const svg = document.getElementById('sofaSvg');
+  const m = MODELLI[previewState.modello];
+  const f = state.tessuti.find(t=>t.id===previewState.tessutoId);
+  const color = f.colore;
+  const seats = m.seats;
+  const isCorner = previewState.modello==='angolare' || previewState.modello==='penisola';
+  const seatW = 150 / Math.min(seats,3);
+
+  let seatsSvg = '';
+  for(let i=0;i<Math.min(seats,3);i++){
+    seatsSvg += `<rect x="${30+i*seatW}" y="55" width="${seatW-4}" height="30" rx="6" fill="${lighten(color,4)}" />`;
+  }
+  const chaise = isCorner ? `<rect x="${30+3*seatW-4}" y="30" width="46" height="55" rx="8" fill="${color}" />` : '';
+
+  svg.innerHTML = `
+    <rect x="20" y="45" width="${isCorner?190:170}" height="45" rx="14" fill="${color}" />
+    ${chaise}
+    ${seatsSvg}
+    <rect x="20" y="20" width="${isCorner?190:170}" height="20" rx="10" fill="${lighten(color,2)}" />
+    <rect x="14" y="30" width="14" height="55" rx="7" fill="${darken(color,6)}" />
+    <rect x="${isCorner?196:176}" y="30" width="14" height="55" rx="7" fill="${darken(color,6)}" />
+    <rect x="20" y="88" width="12" height="14" rx="3" fill="#3A2A1F"/>
+    <rect x="${isCorner?188:158}" y="88" width="12" height="14" rx="3" fill="#3A2A1F"/>
+  `;
+}
+
+function salvaPreventivo(){
+  const clienteId = document.getElementById('selCliente').value;
+  const f = state.tessuti.find(t=>t.id===previewState.tessutoId);
+  const prezzo = calcPrezzo(previewState);
+  state.preventivi.push({
+    id: uid(),
+    clienteId,
+    modello: previewState.modello,
+    tessutoId: f.id,
+    tessutoNome: f.nome,
+    larghezza: previewState.larghezza,
+    note: document.getElementById('inpNote').value.trim(),
+    prezzo,
+    stato: 'bozza',
+    stageIndex: 0,
+    creato: Date.now(),
+  });
+  persist(); closeModal(); switchScreen('preventivi');
+  showToast('Preventivo creato');
+}
+
+function viewPreventivo(id){
+  const p = state.preventivi.find(x=>x.id===id);
+  const cliente = state.clienti.find(c=>c.id===p.clienteId);
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <div class="modal-handle"></div>
+        <h2 class="modal-title">${cliente?cliente.nome:'—'}</h2>
+        <p style="color:var(--muted);margin-top:0;font-size:13px">${MODELLI[p.modello].label} · ${p.tessutoNome} · ${p.larghezza}cm</p>
+        ${p.note?`<p style="font-size:14px;color:var(--ivory);background:var(--surface2);padding:10px 12px;border-radius:10px">${p.note}</p>`:''}
+        <div class="preview-price mono" style="margin:10px 0 20px"><span class="cur">€</span>${p.prezzo.toLocaleString('it-IT')}</div>
+
+        <label>Stato preventivo</label>
+        <select id="selStato" onchange="cambiaStato('${p.id}', this.value)">
+          <option value="bozza" ${p.stato==='bozza'?'selected':''}>Bozza</option>
+          <option value="inviato" ${p.stato==='inviato'?'selected':''}>Inviato</option>
+          <option value="accettato" ${p.stato==='accettato'?'selected':''}>Accettato</option>
+          <option value="rifiutato" ${p.stato==='rifiutato'?'selected':''}>Rifiutato</option>
+        </select>
+
+        <button class="btn btn-danger-ghost" style="margin-top:20px" onclick="deletePreventivo('${p.id}')">Elimina preventivo</button>
+      </div>
+    </div>`;
+}
+
+function cambiaStato(id, stato){
+  const p = state.preventivi.find(x=>x.id===id);
+  p.stato = stato;
+  if(stato==='accettato' && p.stageIndex===undefined) p.stageIndex = 0;
+  persist(); render();
+  showToast('Stato aggiornato');
+}
+
+function deletePreventivo(id){
+  state.preventivi = state.preventivi.filter(p=>p.id!==id);
+  persist(); closeModal(); render();
+  showToast('Preventivo eliminato');
+}
+
+/* ---------- INIT ---------- */
+render();
+</script>
+</body>
+</html>
